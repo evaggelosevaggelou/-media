@@ -20,7 +20,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-  /* ── Header ── */
   header {
     border-bottom: 1px solid var(--border);
     padding: 20px 40px;
@@ -38,12 +37,10 @@
   header h1 { font-size: 18px; font-weight: 600; }
   header span { color: var(--muted); font-size: 14px; margin-left: auto; font-family: var(--mono); }
 
-  /* ── Hero ── */
   .hero { padding: 48px 40px 24px; max-width: 1000px; margin: 0 auto; }
   .hero h2 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
   .hero p  { color: var(--muted); font-size: 15px; margin-bottom: 24px; }
 
-  /* ── Search ── */
   .search-wrap { position: relative; max-width: 480px; }
   .search-wrap .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; opacity: 0.5; }
   #searchInput {
@@ -64,7 +61,6 @@
   .search-meta { color: var(--muted); font-size: 13px; font-family: var(--mono); margin-top: 10px; min-height: 20px; }
   .search-meta mark { background: none; color: var(--accent2); font-weight: 600; }
 
-  /* ── Filter Tabs ── */
   .filters {
     display: flex; gap: 8px;
     padding: 0 40px 28px;
@@ -92,7 +88,6 @@
   }
   .filter-btn:not(.active) .count { background: #21262d; color: var(--muted); }
 
-  /* ── Instagram Grid ── */
   .media-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -109,13 +104,7 @@
     background: var(--surface);
     border-radius: 4px;
   }
-  .media-item img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s;
-  }
-  .media-item video {
+  .media-item img, .media-item video {
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
@@ -124,7 +113,6 @@
   .media-item:hover img,
   .media-item:hover video { transform: scale(1.04); }
 
-  /* Hover overlay */
   .media-item .overlay {
     position: absolute; inset: 0;
     background: rgba(0,0,0,0.55);
@@ -151,7 +139,6 @@
     -webkit-box-orient: vertical;
   }
 
-  /* Video badge */
   .video-badge {
     position: absolute; top: 8px; right: 8px;
     background: rgba(0,0,0,0.7);
@@ -160,7 +147,6 @@
     padding: 2px 7px; border-radius: 4px;
     pointer-events: none;
   }
-  /* Duration badge on video thumb */
   .play-icon {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
@@ -172,7 +158,6 @@
   }
   .media-item:hover .play-icon { opacity: 0; }
 
-  /* ── Lightbox ── */
   .lightbox {
     display: none;
     position: fixed; inset: 0;
@@ -191,19 +176,9 @@
     align-items: center;
     gap: 16px;
   }
-  .lb-media {
-    max-width: 90vw;
-    max-height: 78vh;
-    border-radius: 8px;
-    display: block;
-  }
+  .lb-media { max-width: 90vw; max-height: 78vh; border-radius: 8px; display: block; }
   .lb-media video { max-width: 90vw; max-height: 78vh; border-radius: 8px; outline: none; }
-  .lb-caption {
-    color: var(--muted);
-    font-size: 13px;
-    font-family: var(--mono);
-    text-align: center;
-  }
+  .lb-caption { color: var(--muted); font-size: 13px; font-family: var(--mono); text-align: center; }
   .lb-actions { display: flex; gap: 10px; }
   .lb-btn {
     padding: 8px 18px; border-radius: 6px;
@@ -226,7 +201,6 @@
   }
   .lb-close:hover { color: var(--text); }
 
-  /* Nav arrows */
   .lb-nav {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: rgba(255,255,255,0.08);
@@ -242,12 +216,10 @@
   .lb-prev { left: -64px; }
   .lb-next { right: -64px; }
 
-  /* ── Loading / Empty ── */
   .loading { text-align: center; padding: 60px; color: var(--muted); font-size: 15px; grid-column: 1/-1; }
   .empty   { text-align: center; padding: 60px; color: var(--muted); font-size: 15px; grid-column: 1/-1; }
   .empty span { font-size: 32px; display: block; margin-bottom: 12px; }
 
-  /* ── Pagination ── */
   .pagination {
     display: flex; justify-content: center; align-items: center;
     gap: 6px; padding: 0 40px 48px; flex-wrap: wrap;
@@ -264,7 +236,6 @@
   .page-btn:disabled { opacity: 0.3; cursor: default; }
   .page-info { color: var(--muted); font-size: 13px; font-family: var(--mono); padding: 0 8px; }
 
-  /* ── Stats bar ── */
   .stats {
     max-width: 1000px; margin: 0 auto;
     padding: 0 40px 16px;
@@ -301,7 +272,7 @@
 <header>
   <div class="logo">🎬</div>
   <h1>Media Gallery</h1>
-  <span>evaggelosevaggelou / media</span>
+  <span>evaggelosevaggelou / -media</span>
 </header>
 
 <div class="hero">
@@ -328,7 +299,6 @@
 </div>
 <div class="pagination" id="pagination"></div>
 
-<!-- Lightbox -->
 <div class="lightbox" id="lightbox">
   <div class="lb-inner">
     <button class="lb-close" id="lbClose">✕</button>
@@ -346,12 +316,16 @@
 <footer>lovefortechnology.net · GitHub Pages</footer>
 
 <script>
-const REPO       = 'evaggelosevaggelou/media';
-const BASE       = 'https://evaggelosevaggelou.github.io/media/';
-const API        = 'https://api.github.com/repos/' + REPO + '/git/trees/main?recursive=1';
-const PER_PAGE   = 18;
-const IMG_EXTS   = ['jpg','jpeg','png','gif','webp','avif'];
-const VID_EXTS   = ['mp4','webm','mov','m4v'];
+// ✅ Διορθωμένα - repo name είναι -media (με παύλα)
+const REPO     = 'evaggelosevaggelou/-media';
+const BASE     = 'https://evaggelosevaggelou.github.io/-media/';
+const API      = 'https://api.github.com/repos/' + REPO + '/git/trees/main?recursive=1';
+const PER_PAGE = 18;
+const IMG_EXTS = ['jpg','jpeg','png','gif','webp','avif'];
+const VID_EXTS = ['mp4','webm','mov','m4v'];
+
+// Αρχεία που αγνοούνται
+const IGNORE   = ['index.html', 'readme.md', '.gitignore'];
 
 const grid       = document.getElementById('grid');
 const pagination = document.getElementById('pagination');
@@ -371,14 +345,13 @@ const cntAll     = document.getElementById('cntAll');
 const cntVideo   = document.getElementById('cntVideo');
 const cntPhoto   = document.getElementById('cntPhoto');
 
-let allFiles     = [];
-let filtered     = [];
-let currentPage  = 1;
-let query        = '';
-let activeFilter = 'all';
-let lbIndex      = 0;
+let allFiles    = [];
+let filtered    = [];
+let currentPage = 1;
+let query       = '';
+let activeFilter= 'all';
+let lbIndex     = 0;
 
-/* ── Load files from GitHub API ── */
 async function load() {
   try {
     const res  = await fetch(API);
@@ -388,16 +361,19 @@ async function load() {
     allFiles = tree
       .filter(function(f) {
         if (f.type !== 'blob') return false;
-        var name = f.path.toLowerCase();
-        var ext  = name.split('.').pop();
-        if (name === 'index.html' || name.startsWith('.')) return false;
+        var nameLower = f.path.toLowerCase();
+        var ext = nameLower.split('.').pop();
+        // Αγνόησε συγκεκριμένα αρχεία
+        if (IGNORE.indexOf(nameLower.split('/').pop()) !== -1) return false;
+        if (nameLower.startsWith('.')) return false;
+        // Δέξου εικόνες και βίντεο από ΟΠΟΥΔΗΠΟΤΕ στο repo (ρίζα ή φάκελο)
         return IMG_EXTS.indexOf(ext) !== -1 || VID_EXTS.indexOf(ext) !== -1;
       })
       .map(function(f) {
-        var ext    = f.path.split('.').pop().toLowerCase();
-        var isVid  = VID_EXTS.indexOf(ext) !== -1;
-        var name   = f.path.split('/').pop();
-        var label  = name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
+        var ext   = f.path.split('.').pop().toLowerCase();
+        var isVid = VID_EXTS.indexOf(ext) !== -1;
+        var name  = f.path.split('/').pop();
+        var label = name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
         return { path: f.path, name: name, label: label, url: BASE + f.path, isVideo: isVid, ext: ext };
       });
 
@@ -409,13 +385,10 @@ async function load() {
   }
 }
 
-function ext(f) { return f.isVideo ? 'video' : 'photo'; }
-
 function updateCounts() {
-  var total  = allFiles.length;
   var videos = allFiles.filter(function(f) { return f.isVideo; }).length;
-  var photos = total - videos;
-  cntAll.textContent   = total;
+  var photos = allFiles.length - videos;
+  cntAll.textContent   = allFiles.length;
   cntVideo.textContent = videos;
   cntPhoto.textContent = photos;
 }
@@ -429,7 +402,6 @@ function updateStats() {
     '<span>🖼️ ' + photos + ' φωτογραφίες</span>';
 }
 
-/* ── Filters ── */
 document.querySelectorAll('.filter-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -444,7 +416,7 @@ function applyFilter() {
     var matchFilter = activeFilter === 'all' ||
       (activeFilter === 'video' && f.isVideo) ||
       (activeFilter === 'photo' && !f.isVideo);
-    var matchQuery  = !query || f.name.toLowerCase().includes(query) || f.label.toLowerCase().includes(query);
+    var matchQuery = !query || f.name.toLowerCase().includes(query) || f.label.toLowerCase().includes(query);
     return matchFilter && matchQuery;
   });
 
@@ -459,7 +431,6 @@ function applyFilter() {
   renderPage(1);
 }
 
-/* ── Search ── */
 searchInput.addEventListener('input', function() {
   query = searchInput.value.trim().toLowerCase();
   clearBtn.style.display = query ? 'block' : 'none';
@@ -473,7 +444,6 @@ clearBtn.addEventListener('click', function() {
   searchInput.focus();
 });
 
-/* ── Render grid page ── */
 function renderPage(page) {
   currentPage = page;
   var totalPages = Math.ceil(filtered.length / PER_PAGE);
@@ -485,33 +455,28 @@ function renderPage(page) {
 
   if (filtered.length === 0) {
     grid.innerHTML = '<div class="empty"><span>' + (allFiles.length === 0 ? '📭' : '🔍') + '</span>' +
-      (allFiles.length === 0 ? 'Δεν βρέθηκαν αρχεία ακόμα.<br><small style="font-size:12px;color:#555;margin-top:8px;display:block">Ανέβασε φωτογραφίες στον φάκελο <code>photos/</code> ή βίντεο στον φάκελο <code>videos/</code></small>' : 'Δεν βρέθηκαν αρχεία για αυτή την αναζήτηση.') + '</div>';
+      (allFiles.length === 0
+        ? 'Δεν βρέθηκαν αρχεία ακόμα.<br><small style="font-size:12px;color:#555;margin-top:8px;display:block">Ανέβασε φωτογραφίες ή βίντεο οπουδήποτε στο repo!</small>'
+        : 'Δεν βρέθηκαν αρχεία για αυτή την αναζήτηση.') + '</div>';
     pagination.innerHTML = '';
     return;
   }
 
-  pageFiles.forEach(function(f, i) {
+  pageFiles.forEach(function(f) {
     var globalIdx = filtered.indexOf(f);
     var item = document.createElement('div');
     item.className = 'media-item';
-    item.setAttribute('data-idx', globalIdx);
 
     if (f.isVideo) {
       item.innerHTML =
         '<video src="' + f.url + '" preload="metadata" muted playsinline></video>' +
         '<span class="play-icon">▶</span>' +
-        '<div class="overlay">' +
-          '<span class="overlay-icon">▶️</span>' +
-          '<span class="overlay-name">' + escHtml(f.label) + '</span>' +
-        '</div>' +
-        '<span class="video-badge">MP4</span>';
+        '<div class="overlay"><span class="overlay-icon">▶️</span><span class="overlay-name">' + escHtml(f.label) + '</span></div>' +
+        '<span class="video-badge">' + f.ext.toUpperCase() + '</span>';
     } else {
       item.innerHTML =
         '<img src="' + f.url + '" alt="' + escHtml(f.label) + '" loading="lazy">' +
-        '<div class="overlay">' +
-          '<span class="overlay-icon">🔍</span>' +
-          '<span class="overlay-name">' + escHtml(f.label) + '</span>' +
-        '</div>';
+        '<div class="overlay"><span class="overlay-icon">🔍</span><span class="overlay-name">' + escHtml(f.label) + '</span></div>';
     }
 
     item.addEventListener('click', function() { openLightbox(globalIdx); });
@@ -522,7 +487,6 @@ function renderPage(page) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ── Lightbox ── */
 function openLightbox(idx) {
   lbIndex = idx;
   var f = filtered[idx];
@@ -530,20 +494,15 @@ function openLightbox(idx) {
 
   if (f.isVideo) {
     var vid = document.createElement('video');
-    vid.src = f.url;
-    vid.controls = true;
-    vid.autoplay = true;
-    vid.className = 'lb-media';
+    vid.src = f.url; vid.controls = true; vid.autoplay = true; vid.className = 'lb-media';
     lbMedia.appendChild(vid);
   } else {
     var img = document.createElement('img');
-    img.src = f.url;
-    img.alt = f.label;
-    img.className = 'lb-media';
+    img.src = f.url; img.alt = f.label; img.className = 'lb-media';
     lbMedia.appendChild(img);
   }
 
-  lbCaption.textContent = f.name;
+  lbCaption.textContent = f.path; // δείχνει και τον φάκελο
   lbOpen.href = f.url;
   lbCopy.textContent = '📋 Αντιγραφή link';
   lbCopy.classList.remove('copied');
@@ -557,7 +516,7 @@ function closeLightbox() {
   lightbox.classList.remove('open');
   document.body.style.overflow = '';
   var vid = lbMedia.querySelector('video');
-  if (vid) { vid.pause(); }
+  if (vid) vid.pause();
   lbMedia.innerHTML = '';
 }
 
@@ -568,15 +527,15 @@ lbNext.addEventListener('click', function() { if (lbIndex < filtered.length - 1)
 
 document.addEventListener('keydown', function(e) {
   if (!lightbox.classList.contains('open')) return;
-  if (e.key === 'Escape')       closeLightbox();
-  if (e.key === 'ArrowLeft'  && lbIndex > 0)                 openLightbox(lbIndex - 1);
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft'  && lbIndex > 0)                openLightbox(lbIndex - 1);
   if (e.key === 'ArrowRight' && lbIndex < filtered.length-1) openLightbox(lbIndex + 1);
 });
 
 lbCopy.addEventListener('click', function() {
   var url = filtered[lbIndex].url;
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(url).then(function() { flashCopy(); });
+    navigator.clipboard.writeText(url).then(flashCopy);
   } else {
     var ta = document.createElement('textarea');
     ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
@@ -591,7 +550,6 @@ function flashCopy() {
   setTimeout(function() { lbCopy.textContent = '📋 Αντιγραφή link'; lbCopy.classList.remove('copied'); }, 2000);
 }
 
-/* ── Pagination ── */
 function renderPagination(page, totalPages) {
   pagination.innerHTML = '';
   if (totalPages <= 1) return;
@@ -622,9 +580,7 @@ function renderPagination(page, totalPages) {
 
   var info = document.createElement('span');
   info.className = 'page-info';
-  var s = (page - 1) * PER_PAGE + 1;
-  var e = Math.min(page * PER_PAGE, filtered.length);
-  info.textContent = s + '–' + e + ' / ' + filtered.length;
+  info.textContent = ((page-1)*PER_PAGE+1) + '–' + Math.min(page*PER_PAGE, filtered.length) + ' / ' + filtered.length;
   pagination.appendChild(info);
 }
 
