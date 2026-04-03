@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  video {
+    width: 100%;
+    max-height: 100vh;
+    display: block;
+    outline: none;
+  }
+</style>
+</head>
+<body>
+<script>
+  var src = new URLSearchParams(location.search).get('src');
+  if (src) {
+    var v = document.createElement('video');
+    v.src = decodeURIComponent(src);
+    v.controls = true;
+    v.preload = 'metadata';
+    v.setAttribute('playsinline', '');
+    document.body.appendChild(v);
+  }
+</script>
+</body>
+</html>
