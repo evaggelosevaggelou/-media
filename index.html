@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media – lovefortechnology.net</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --accent: #2ea043;
+    --accent2: #388bfd;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo {
+    width: 32px; height: 32px;
+    background: var(--accent2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { color: var(--muted); font-size: 14px; margin-left: auto; font-family: var(--mono); }
+
+  /* ── Hero ── */
+  .hero { padding: 48px 40px 24px; max-width: 1000px; margin: 0 auto; }
+  .hero h2 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+  .hero p  { color: var(--muted); font-size: 15px; margin-bottom: 24px; }
+
+  /* ── Search ── */
+  .search-wrap { position: relative; max-width: 480px; }
+  .search-wrap .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; opacity: 0.5; }
+  #searchInput {
+    width: 100%; padding: 10px 40px 10px 40px;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+    font-size: 14px; font-family: var(--sans);
+    outline: none; transition: border-color 0.2s;
+  }
+  #searchInput:focus { border-color: var(--accent2); }
+  #searchInput::placeholder { color: var(--muted); }
+  .clear-btn {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 16px; line-height: 1; display: none; padding: 2px 4px; border-radius: 4px;
+  }
+  .clear-btn:hover { color: var(--text); background: #21262d; }
+  .search-meta { color: var(--muted); font-size: 13px; font-family: var(--mono); margin-top: 10px; min-height: 20px; }
+  .search-meta mark { background: none; color: var(--accent2); font-weight: 600; }
+
+  /* ── Filter Tabs ── */
+  .filters {
+    display: flex; gap: 8px;
+    padding: 0 40px 28px;
+    max-width: 1000px; margin: 0 auto;
+  }
+  .filter-btn {
+    padding: 7px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px; font-weight: 500; font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .filter-btn:hover { border-color: var(--accent2); color: var(--text); }
+  .filter-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .filter-btn .count {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-family: var(--mono);
+  }
+  .filter-btn:not(.active) .count { background: #21262d; color: var(--muted); }
+
+  /* ── Instagram Grid ── */
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 40px 48px;
+  }
+  .media-item {
+    aspect-ratio: 1 / 1;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--surface);
+    border-radius: 4px;
+  }
+  .media-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+  .media-item video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+  .media-item:hover img,
+  .media-item:hover video { transform: scale(1.04); }
+
+  /* Hover overlay */
+  .media-item .overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 12px;
+  }
+  .media-item:hover .overlay { opacity: 1; }
+  .overlay-icon { font-size: 28px; }
+  .overlay-name {
+    color: #fff;
+    font-size: 12px;
+    font-family: var(--mono);
+    text-align: center;
+    word-break: break-all;
+    max-width: 100%;
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* Video badge */
+  .video-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    font-size: 10px; font-weight: 600; font-family: var(--mono);
+    padding: 2px 7px; border-radius: 4px;
+    pointer-events: none;
+  }
+  /* Duration badge on video thumb */
+  .play-icon {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+  .media-item:hover .play-icon { opacity: 0; }
+
+  /* ── Lightbox ── */
+  .lightbox {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox.open { display: flex; }
+  .lb-inner {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .lb-media {
+    max-width: 90vw;
+    max-height: 78vh;
+    border-radius: 8px;
+    display: block;
+  }
+  .lb-media video { max-width: 90vw; max-height: 78vh; border-radius: 8px; outline: none; }
+  .lb-caption {
+    color: var(--muted);
+    font-size: 13px;
+    font-family: var(--mono);
+    text-align: center;
+  }
+  .lb-actions { display: flex; gap: 10px; }
+  .lb-btn {
+    padding: 8px 18px; border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px; font-weight: 500; font-family: var(--sans);
+    cursor: pointer; text-decoration: none;
+    transition: background 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .lb-btn:hover { background: #21262d; border-color: var(--accent2); }
+  .lb-btn.copied { color: var(--accent); border-color: var(--accent); }
+  .lb-close {
+    position: absolute; top: -44px; right: 0;
+    background: none; border: none;
+    color: var(--muted); font-size: 24px;
+    cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    transition: color 0.15s;
+  }
+  .lb-close:hover { color: var(--text); }
+
+  /* Nav arrows */
+  .lb-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff; font-size: 20px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    z-index: 10;
+  }
+  .lb-nav:hover { background: rgba(255,255,255,0.18); }
+  .lb-prev { left: -64px; }
+  .lb-next { right: -64px; }
+
+  /* ── Loading / Empty ── */
+  .loading { text-align: center; padding: 60px; color: var(--muted); font-size: 15px; grid-column: 1/-1; }
+  .empty   { text-align: center; padding: 60px; color: var(--muted); font-size: 15px; grid-column: 1/-1; }
+  .empty span { font-size: 32px; display: block; margin-bottom: 12px; }
+
+  /* ── Pagination ── */
+  .pagination {
+    display: flex; justify-content: center; align-items: center;
+    gap: 6px; padding: 0 40px 48px; flex-wrap: wrap;
+  }
+  .page-btn {
+    min-width: 36px; height: 36px; padding: 0 10px;
+    border-radius: 6px; font-size: 14px; font-weight: 500; font-family: var(--sans);
+    cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--text);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .page-btn:hover:not(:disabled):not(.active) { background: #21262d; border-color: var(--accent2); }
+  .page-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; cursor: default; }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
+  .page-info { color: var(--muted); font-size: 13px; font-family: var(--mono); padding: 0 8px; }
+
+  /* ── Stats bar ── */
+  .stats {
+    max-width: 1000px; margin: 0 auto;
+    padding: 0 40px 16px;
+    display: flex; gap: 20px;
+    color: var(--muted); font-size: 13px; font-family: var(--mono);
+  }
+  .stats span { display: flex; align-items: center; gap: 5px; }
+
+  footer {
+    text-align: center; padding: 24px;
+    color: var(--muted); font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 700px) {
+    header { padding: 16px 20px; }
+    header span { display: none; }
+    .hero { padding: 32px 20px 20px; }
+    .filters { padding: 0 20px 24px; }
+    .media-grid { padding: 0 20px 40px; gap: 2px; }
+    .stats { padding: 0 20px 16px; }
+    .pagination { padding: 0 20px 40px; }
+    .lb-prev { left: -50px; }
+    .lb-next { right: -50px; }
+  }
+  @media (max-width: 480px) {
+    .media-grid { grid-template-columns: repeat(2, 1fr); }
+    .lb-prev, .lb-next { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎬</div>
+  <h1>Media Gallery</h1>
+  <span>evaggelosevaggelou / media</span>
+</header>
+
+<div class="hero">
+  <h2>Φωτογραφίες & Βίντεο</h2>
+  <p>Όλα τα media για το lovefortechnology.net — ενημερώνεται αυτόματα!</p>
+  <div class="search-wrap">
+    <span class="icon">🔍</span>
+    <input id="searchInput" type="text" placeholder="Αναζήτηση αρχείου…" autocomplete="off" spellcheck="false" />
+    <button class="clear-btn" id="clearBtn" title="Καθαρισμός">✕</button>
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="filters">
+  <button class="filter-btn active" data-filter="all">🗂️ Όλα <span class="count" id="cntAll">0</span></button>
+  <button class="filter-btn" data-filter="video">📹 Βίντεο <span class="count" id="cntVideo">0</span></button>
+  <button class="filter-btn" data-filter="photo">🖼️ Φωτογραφίες <span class="count" id="cntPhoto">0</span></button>
+</div>
+
+<div class="media-grid" id="grid">
+  <div class="loading">⏳ Φόρτωση αρχείων...</div>
+</div>
+<div class="pagination" id="pagination"></div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-inner">
+    <button class="lb-close" id="lbClose">✕</button>
+    <button class="lb-nav lb-prev" id="lbPrev">‹</button>
+    <button class="lb-nav lb-next" id="lbNext">›</button>
+    <div id="lbMedia"></div>
+    <div class="lb-caption" id="lbCaption"></div>
+    <div class="lb-actions">
+      <a class="lb-btn" id="lbOpen" href="#" target="_blank">🔗 Άνοιγμα</a>
+      <button class="lb-btn" id="lbCopy">📋 Αντιγραφή link</button>
+    </div>
+  </div>
+</div>
+
+<footer>lovefortechnology.net · GitHub Pages</footer>
+
+<script>
+const REPO       = 'evaggelosevaggelou/media';
+const BASE       = 'https://evaggelosevaggelou.github.io/media/';
+const API        = 'https://api.github.com/repos/' + REPO + '/git/trees/main?recursive=1';
+const PER_PAGE   = 18;
+const IMG_EXTS   = ['jpg','jpeg','png','gif','webp','avif'];
+const VID_EXTS   = ['mp4','webm','mov','m4v'];
+
+const grid       = document.getElementById('grid');
+const pagination = document.getElementById('pagination');
+const searchInput= document.getElementById('searchInput');
+const clearBtn   = document.getElementById('clearBtn');
+const searchMeta = document.getElementById('searchMeta');
+const statsEl    = document.getElementById('stats');
+const lightbox   = document.getElementById('lightbox');
+const lbMedia    = document.getElementById('lbMedia');
+const lbCaption  = document.getElementById('lbCaption');
+const lbOpen     = document.getElementById('lbOpen');
+const lbCopy     = document.getElementById('lbCopy');
+const lbClose    = document.getElementById('lbClose');
+const lbPrev     = document.getElementById('lbPrev');
+const lbNext     = document.getElementById('lbNext');
+const cntAll     = document.getElementById('cntAll');
+const cntVideo   = document.getElementById('cntVideo');
+const cntPhoto   = document.getElementById('cntPhoto');
+
+let allFiles     = [];
+let filtered     = [];
+let currentPage  = 1;
+let query        = '';
+let activeFilter = 'all';
+let lbIndex      = 0;
+
+/* ── Load files from GitHub API ── */
+async function load() {
+  try {
+    const res  = await fetch(API);
+    const data = await res.json();
+    const tree = data.tree || [];
+
+    allFiles = tree
+      .filter(function(f) {
+        if (f.type !== 'blob') return false;
+        var name = f.path.toLowerCase();
+        var ext  = name.split('.').pop();
+        if (name === 'index.html' || name.startsWith('.')) return false;
+        return IMG_EXTS.indexOf(ext) !== -1 || VID_EXTS.indexOf(ext) !== -1;
+      })
+      .map(function(f) {
+        var ext    = f.path.split('.').pop().toLowerCase();
+        var isVid  = VID_EXTS.indexOf(ext) !== -1;
+        var name   = f.path.split('/').pop();
+        var label  = name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
+        return { path: f.path, name: name, label: label, url: BASE + f.path, isVideo: isVid, ext: ext };
+      });
+
+    updateCounts();
+    updateStats();
+    applyFilter();
+  } catch(e) {
+    grid.innerHTML = '<div class="empty"><span>❌</span>Σφάλμα φόρτωσης. Δοκίμασε ξανά.</div>';
+  }
+}
+
+function ext(f) { return f.isVideo ? 'video' : 'photo'; }
+
+function updateCounts() {
+  var total  = allFiles.length;
+  var videos = allFiles.filter(function(f) { return f.isVideo; }).length;
+  var photos = total - videos;
+  cntAll.textContent   = total;
+  cntVideo.textContent = videos;
+  cntPhoto.textContent = photos;
+}
+
+function updateStats() {
+  var videos = allFiles.filter(function(f) { return f.isVideo; }).length;
+  var photos = allFiles.length - videos;
+  statsEl.innerHTML =
+    '<span>📁 ' + allFiles.length + ' αρχεία</span>' +
+    '<span>📹 ' + videos + ' βίντεο</span>' +
+    '<span>🖼️ ' + photos + ' φωτογραφίες</span>';
+}
+
+/* ── Filters ── */
+document.querySelectorAll('.filter-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    applyFilter();
+  });
+});
+
+function applyFilter() {
+  filtered = allFiles.filter(function(f) {
+    var matchFilter = activeFilter === 'all' ||
+      (activeFilter === 'video' && f.isVideo) ||
+      (activeFilter === 'photo' && !f.isVideo);
+    var matchQuery  = !query || f.name.toLowerCase().includes(query) || f.label.toLowerCase().includes(query);
+    return matchFilter && matchQuery;
+  });
+
+  if (query) {
+    searchMeta.innerHTML = filtered.length === 0
+      ? 'Δεν βρέθηκαν αποτελέσματα για "<mark>' + escHtml(query) + '</mark>"'
+      : filtered.length + ' αποτελέσματα για "<mark>' + escHtml(query) + '</mark>"';
+  } else {
+    searchMeta.textContent = '';
+  }
+
+  renderPage(1);
+}
+
+/* ── Search ── */
+searchInput.addEventListener('input', function() {
+  query = searchInput.value.trim().toLowerCase();
+  clearBtn.style.display = query ? 'block' : 'none';
+  applyFilter();
+});
+clearBtn.addEventListener('click', function() {
+  searchInput.value = '';
+  query = '';
+  clearBtn.style.display = 'none';
+  applyFilter();
+  searchInput.focus();
+});
+
+/* ── Render grid page ── */
+function renderPage(page) {
+  currentPage = page;
+  var totalPages = Math.ceil(filtered.length / PER_PAGE);
+  var start      = (page - 1) * PER_PAGE;
+  var end        = Math.min(start + PER_PAGE, filtered.length);
+  var pageFiles  = filtered.slice(start, end);
+
+  grid.innerHTML = '';
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty"><span>' + (allFiles.length === 0 ? '📭' : '🔍') + '</span>' +
+      (allFiles.length === 0 ? 'Δεν βρέθηκαν αρχεία ακόμα.<br><small style="font-size:12px;color:#555;margin-top:8px;display:block">Ανέβασε φωτογραφίες στον φάκελο <code>photos/</code> ή βίντεο στον φάκελο <code>videos/</code></small>' : 'Δεν βρέθηκαν αρχεία για αυτή την αναζήτηση.') + '</div>';
+    pagination.innerHTML = '';
+    return;
+  }
+
+  pageFiles.forEach(function(f, i) {
+    var globalIdx = filtered.indexOf(f);
+    var item = document.createElement('div');
+    item.className = 'media-item';
+    item.setAttribute('data-idx', globalIdx);
+
+    if (f.isVideo) {
+      item.innerHTML =
+        '<video src="' + f.url + '" preload="metadata" muted playsinline></video>' +
+        '<span class="play-icon">▶</span>' +
+        '<div class="overlay">' +
+          '<span class="overlay-icon">▶️</span>' +
+          '<span class="overlay-name">' + escHtml(f.label) + '</span>' +
+        '</div>' +
+        '<span class="video-badge">MP4</span>';
+    } else {
+      item.innerHTML =
+        '<img src="' + f.url + '" alt="' + escHtml(f.label) + '" loading="lazy">' +
+        '<div class="overlay">' +
+          '<span class="overlay-icon">🔍</span>' +
+          '<span class="overlay-name">' + escHtml(f.label) + '</span>' +
+        '</div>';
+    }
+
+    item.addEventListener('click', function() { openLightbox(globalIdx); });
+    grid.appendChild(item);
+  });
+
+  renderPagination(page, totalPages);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Lightbox ── */
+function openLightbox(idx) {
+  lbIndex = idx;
+  var f = filtered[idx];
+  lbMedia.innerHTML = '';
+
+  if (f.isVideo) {
+    var vid = document.createElement('video');
+    vid.src = f.url;
+    vid.controls = true;
+    vid.autoplay = true;
+    vid.className = 'lb-media';
+    lbMedia.appendChild(vid);
+  } else {
+    var img = document.createElement('img');
+    img.src = f.url;
+    img.alt = f.label;
+    img.className = 'lb-media';
+    lbMedia.appendChild(img);
+  }
+
+  lbCaption.textContent = f.name;
+  lbOpen.href = f.url;
+  lbCopy.textContent = '📋 Αντιγραφή link';
+  lbCopy.classList.remove('copied');
+  lbPrev.disabled = (idx === 0);
+  lbNext.disabled = (idx === filtered.length - 1);
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  var vid = lbMedia.querySelector('video');
+  if (vid) { vid.pause(); }
+  lbMedia.innerHTML = '';
+}
+
+lbClose.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
+lbPrev.addEventListener('click', function() { if (lbIndex > 0) openLightbox(lbIndex - 1); });
+lbNext.addEventListener('click', function() { if (lbIndex < filtered.length - 1) openLightbox(lbIndex + 1); });
+
+document.addEventListener('keydown', function(e) {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape')       closeLightbox();
+  if (e.key === 'ArrowLeft'  && lbIndex > 0)                 openLightbox(lbIndex - 1);
+  if (e.key === 'ArrowRight' && lbIndex < filtered.length-1) openLightbox(lbIndex + 1);
+});
+
+lbCopy.addEventListener('click', function() {
+  var url = filtered[lbIndex].url;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(function() { flashCopy(); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); flashCopy(); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+});
+function flashCopy() {
+  lbCopy.textContent = '✅ Αντιγράφηκε!';
+  lbCopy.classList.add('copied');
+  setTimeout(function() { lbCopy.textContent = '📋 Αντιγραφή link'; lbCopy.classList.remove('copied'); }, 2000);
+}
+
+/* ── Pagination ── */
+function renderPagination(page, totalPages) {
+  pagination.innerHTML = '';
+  if (totalPages <= 1) return;
+
+  var prev = document.createElement('button');
+  prev.className = 'page-btn'; prev.textContent = '←'; prev.disabled = (page === 1);
+  prev.onclick = function() { renderPage(page - 1); };
+  pagination.appendChild(prev);
+
+  getPageNumbers(page, totalPages).forEach(function(p) {
+    if (p === '...') {
+      var dots = document.createElement('span');
+      dots.className = 'page-info'; dots.textContent = '…';
+      pagination.appendChild(dots);
+    } else {
+      var btn = document.createElement('button');
+      btn.className = 'page-btn' + (p === page ? ' active' : '');
+      btn.textContent = p;
+      btn.onclick = (function(pg) { return function() { renderPage(pg); }; })(p);
+      pagination.appendChild(btn);
+    }
+  });
+
+  var next = document.createElement('button');
+  next.className = 'page-btn'; next.textContent = '→'; next.disabled = (page === totalPages);
+  next.onclick = function() { renderPage(page + 1); };
+  pagination.appendChild(next);
+
+  var info = document.createElement('span');
+  info.className = 'page-info';
+  var s = (page - 1) * PER_PAGE + 1;
+  var e = Math.min(page * PER_PAGE, filtered.length);
+  info.textContent = s + '–' + e + ' / ' + filtered.length;
+  pagination.appendChild(info);
+}
+
+function getPageNumbers(current, total) {
+  if (total <= 7) { var a = []; for (var i = 1; i <= total; i++) a.push(i); return a; }
+  var pages = [1];
+  if (current > 3) pages.push('...');
+  for (var i = Math.max(2, current-1); i <= Math.min(total-1, current+1); i++) pages.push(i);
+  if (current < total-2) pages.push('...');
+  pages.push(total);
+  return pages;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+load();
+</script>
+</body>
+</html>
