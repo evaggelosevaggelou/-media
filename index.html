@@ -158,6 +158,7 @@
   }
   .media-item:hover .play-icon { opacity: 0; }
 
+  /* LIGHTBOX */
   .lightbox {
     display: none;
     position: fixed; inset: 0;
@@ -174,14 +175,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
   }
-  .lb-media { max-width: 90vw; max-height: 78vh; border-radius: 8px; display: block; }
-  .lb-media video { max-width: 90vw; max-height: 78vh; border-radius: 8px; outline: none; }
+  .lb-media { max-width: 90vw; max-height: 72vh; border-radius: 8px; display: block; }
+  .lb-media video { max-width: 90vw; max-height: 72vh; border-radius: 8px; outline: none; }
   .lb-caption { color: var(--muted); font-size: 13px; font-family: var(--mono); text-align: center; }
-  .lb-actions { display: flex; gap: 10px; }
+
+  .lb-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   .lb-btn {
-    padding: 8px 18px; border-radius: 6px;
+    padding: 8px 16px; border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
@@ -191,7 +193,46 @@
     display: flex; align-items: center; gap: 6px;
   }
   .lb-btn:hover { background: #21262d; border-color: var(--accent2); }
-  .lb-btn.copied { color: var(--accent); border-color: var(--accent); }
+  .lb-btn.copied  { color: var(--accent); border-color: var(--accent); }
+  .lb-btn.blogger { border-color: #f4881f; color: #f4881f; }
+  .lb-btn.blogger:hover { background: rgba(244,136,31,0.1); }
+  .lb-btn.blogger.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* Embed panel */
+  .embed-panel {
+    display: none;
+    background: #0d1117;
+    border: 1px solid #f4881f;
+    border-radius: 8px;
+    padding: 14px 16px;
+    max-width: 560px;
+    width: 90vw;
+  }
+  .embed-panel.open { display: block; }
+  .embed-panel-title {
+    font-size: 12px; font-weight: 600; color: #f4881f;
+    font-family: var(--mono); margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .embed-panel textarea {
+    width: 100%;
+    background: #161b22;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 10px;
+    resize: none;
+    outline: none;
+    cursor: text;
+  }
+  .embed-panel-note {
+    color: var(--muted); font-size: 11px; font-family: var(--mono);
+    margin-top: 8px; line-height: 1.5;
+  }
+
   .lb-close {
     position: absolute; top: -44px; right: 0;
     background: none; border: none;
@@ -299,6 +340,7 @@
 </div>
 <div class="pagination" id="pagination"></div>
 
+<!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
   <div class="lb-inner">
     <button class="lb-close" id="lbClose">✕</button>
@@ -306,9 +348,23 @@
     <button class="lb-nav lb-next" id="lbNext">›</button>
     <div id="lbMedia"></div>
     <div class="lb-caption" id="lbCaption"></div>
+
+    <!-- Embed panel — εμφανίζεται μόνο για βίντεο -->
+    <div class="embed-panel" id="embedPanel">
+      <div class="embed-panel-title">
+        <span>🟠 Κώδικας για Blogger</span>
+      </div>
+      <textarea id="embedCode" rows="5" readonly onclick="this.select()"></textarea>
+      <div class="embed-panel-note">
+        📋 Κλικ στο κείμενο για επιλογή → Ctrl+C για αντιγραφή<br>
+        Στο Blogger: Επεξεργασία post → HTML → επικόλληση
+      </div>
+    </div>
+
     <div class="lb-actions">
       <a class="lb-btn" id="lbOpen" href="#" target="_blank">🔗 Άνοιγμα</a>
       <button class="lb-btn" id="lbCopy">📋 Αντιγραφή link</button>
+      <button class="lb-btn blogger" id="lbEmbed">🟠 Embed Blogger</button>
     </div>
   </div>
 </div>
@@ -316,34 +372,35 @@
 <footer>lovefortechnology.net · GitHub Pages</footer>
 
 <script>
-// ✅ Διορθωμένα - repo name είναι -media (με παύλα)
 const REPO     = 'evaggelosevaggelou/-media';
 const BASE     = 'https://evaggelosevaggelou.github.io/-media/';
+const PLAYER   = 'https://evaggelosevaggelou.github.io/-media/video-player.html';
 const API      = 'https://api.github.com/repos/' + REPO + '/git/trees/main?recursive=1';
 const PER_PAGE = 18;
 const IMG_EXTS = ['jpg','jpeg','png','gif','webp','avif'];
 const VID_EXTS = ['mp4','webm','mov','m4v'];
+const IGNORE   = ['index.html','video-player.html','readme.md','.gitignore'];
 
-// Αρχεία που αγνοούνται
-const IGNORE   = ['index.html', 'readme.md', '.gitignore'];
-
-const grid       = document.getElementById('grid');
-const pagination = document.getElementById('pagination');
-const searchInput= document.getElementById('searchInput');
-const clearBtn   = document.getElementById('clearBtn');
-const searchMeta = document.getElementById('searchMeta');
-const statsEl    = document.getElementById('stats');
-const lightbox   = document.getElementById('lightbox');
-const lbMedia    = document.getElementById('lbMedia');
-const lbCaption  = document.getElementById('lbCaption');
-const lbOpen     = document.getElementById('lbOpen');
-const lbCopy     = document.getElementById('lbCopy');
-const lbClose    = document.getElementById('lbClose');
-const lbPrev     = document.getElementById('lbPrev');
-const lbNext     = document.getElementById('lbNext');
-const cntAll     = document.getElementById('cntAll');
-const cntVideo   = document.getElementById('cntVideo');
-const cntPhoto   = document.getElementById('cntPhoto');
+const grid        = document.getElementById('grid');
+const pagination  = document.getElementById('pagination');
+const searchInput = document.getElementById('searchInput');
+const clearBtn    = document.getElementById('clearBtn');
+const searchMeta  = document.getElementById('searchMeta');
+const statsEl     = document.getElementById('stats');
+const lightbox    = document.getElementById('lightbox');
+const lbMedia     = document.getElementById('lbMedia');
+const lbCaption   = document.getElementById('lbCaption');
+const lbOpen      = document.getElementById('lbOpen');
+const lbCopy      = document.getElementById('lbCopy');
+const lbEmbed     = document.getElementById('lbEmbed');
+const lbClose     = document.getElementById('lbClose');
+const lbPrev      = document.getElementById('lbPrev');
+const lbNext      = document.getElementById('lbNext');
+const embedPanel  = document.getElementById('embedPanel');
+const embedCode   = document.getElementById('embedCode');
+const cntAll      = document.getElementById('cntAll');
+const cntVideo    = document.getElementById('cntVideo');
+const cntPhoto    = document.getElementById('cntPhoto');
 
 let allFiles    = [];
 let filtered    = [];
@@ -352,6 +409,7 @@ let query       = '';
 let activeFilter= 'all';
 let lbIndex     = 0;
 
+/* ── Φόρτωση αρχείων από GitHub API ── */
 async function load() {
   try {
     const res  = await fetch(API);
@@ -361,12 +419,10 @@ async function load() {
     allFiles = tree
       .filter(function(f) {
         if (f.type !== 'blob') return false;
-        var nameLower = f.path.toLowerCase();
-        var ext = nameLower.split('.').pop();
-        // Αγνόησε συγκεκριμένα αρχεία
-        if (IGNORE.indexOf(nameLower.split('/').pop()) !== -1) return false;
-        if (nameLower.startsWith('.')) return false;
-        // Δέξου εικόνες και βίντεο από ΟΠΟΥΔΗΠΟΤΕ στο repo (ρίζα ή φάκελο)
+        var name = f.path.toLowerCase().split('/').pop();
+        var ext  = name.split('.').pop();
+        if (IGNORE.indexOf(name) !== -1) return false;
+        if (name.startsWith('.')) return false;
         return IMG_EXTS.indexOf(ext) !== -1 || VID_EXTS.indexOf(ext) !== -1;
       })
       .map(function(f) {
@@ -387,21 +443,20 @@ async function load() {
 
 function updateCounts() {
   var videos = allFiles.filter(function(f) { return f.isVideo; }).length;
-  var photos = allFiles.length - videos;
   cntAll.textContent   = allFiles.length;
   cntVideo.textContent = videos;
-  cntPhoto.textContent = photos;
+  cntPhoto.textContent = allFiles.length - videos;
 }
 
 function updateStats() {
   var videos = allFiles.filter(function(f) { return f.isVideo; }).length;
-  var photos = allFiles.length - videos;
   statsEl.innerHTML =
     '<span>📁 ' + allFiles.length + ' αρχεία</span>' +
     '<span>📹 ' + videos + ' βίντεο</span>' +
-    '<span>🖼️ ' + photos + ' φωτογραφίες</span>';
+    '<span>🖼️ ' + (allFiles.length - videos) + ' φωτογραφίες</span>';
 }
 
+/* ── Filters ── */
 document.querySelectorAll('.filter-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -413,7 +468,8 @@ document.querySelectorAll('.filter-btn').forEach(function(btn) {
 
 function applyFilter() {
   filtered = allFiles.filter(function(f) {
-    var matchFilter = activeFilter === 'all' ||
+    var matchFilter =
+      activeFilter === 'all' ||
       (activeFilter === 'video' && f.isVideo) ||
       (activeFilter === 'photo' && !f.isVideo);
     var matchQuery = !query || f.name.toLowerCase().includes(query) || f.label.toLowerCase().includes(query);
@@ -427,7 +483,6 @@ function applyFilter() {
   } else {
     searchMeta.textContent = '';
   }
-
   renderPage(1);
 }
 
@@ -437,26 +492,24 @@ searchInput.addEventListener('input', function() {
   applyFilter();
 });
 clearBtn.addEventListener('click', function() {
-  searchInput.value = '';
-  query = '';
+  searchInput.value = ''; query = '';
   clearBtn.style.display = 'none';
-  applyFilter();
-  searchInput.focus();
+  applyFilter(); searchInput.focus();
 });
 
+/* ── Grid render ── */
 function renderPage(page) {
   currentPage = page;
   var totalPages = Math.ceil(filtered.length / PER_PAGE);
   var start      = (page - 1) * PER_PAGE;
-  var end        = Math.min(start + PER_PAGE, filtered.length);
-  var pageFiles  = filtered.slice(start, end);
+  var pageFiles  = filtered.slice(start, start + PER_PAGE);
 
   grid.innerHTML = '';
 
   if (filtered.length === 0) {
     grid.innerHTML = '<div class="empty"><span>' + (allFiles.length === 0 ? '📭' : '🔍') + '</span>' +
       (allFiles.length === 0
-        ? 'Δεν βρέθηκαν αρχεία ακόμα.<br><small style="font-size:12px;color:#555;margin-top:8px;display:block">Ανέβασε φωτογραφίες ή βίντεο οπουδήποτε στο repo!</small>'
+        ? 'Δεν βρέθηκαν αρχεία ακόμα.<br><small style="font-size:12px;color:#555;margin-top:8px;display:block">Ανέβασε φωτογραφίες ή βίντεο στο repo!</small>'
         : 'Δεν βρέθηκαν αρχεία για αυτή την αναζήτηση.') + '</div>';
     pagination.innerHTML = '';
     return;
@@ -469,7 +522,7 @@ function renderPage(page) {
 
     if (f.isVideo) {
       item.innerHTML =
-        '<video src="' + f.url + '" preload="metadata" muted playsinline></video>' +
+        '<video src="' + f.url + '#t=0.1" preload="metadata" muted playsinline></video>' +
         '<span class="play-icon">▶</span>' +
         '<div class="overlay"><span class="overlay-icon">▶️</span><span class="overlay-name">' + escHtml(f.label) + '</span></div>' +
         '<span class="video-badge">' + f.ext.toUpperCase() + '</span>';
@@ -487,22 +540,45 @@ function renderPage(page) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* ── Lightbox ── */
 function openLightbox(idx) {
   lbIndex = idx;
   var f = filtered[idx];
   lbMedia.innerHTML = '';
+  embedPanel.classList.remove('open');
+  lbEmbed.textContent = '🟠 Embed Blogger';
+  lbEmbed.classList.remove('copied');
 
   if (f.isVideo) {
     var vid = document.createElement('video');
-    vid.src = f.url; vid.controls = true; vid.autoplay = true; vid.className = 'lb-media';
+    vid.src = f.url; vid.controls = true; vid.autoplay = true;
+    vid.className = 'lb-media'; vid.style.maxWidth = '560px';
     lbMedia.appendChild(vid);
+    lbEmbed.style.display = 'flex';
+
+    // Κώδικας embed — iframe που παίζει το video από το ίδιο domain (αποφυγή CORS)
+    var embedSrc = PLAYER + '?src=' + encodeURIComponent(f.url);
+    embedCode.value =
+      '<div style="position:relative;width:100%;max-width:720px;margin:20px auto;' +
+      'border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.2);">\n' +
+      '  <iframe\n' +
+      '    src="' + embedSrc + '"\n' +
+      '    width="100%"\n' +
+      '    height="420"\n' +
+      '    frameborder="0"\n' +
+      '    allowfullscreen\n' +
+      '    loading="lazy"\n' +
+      '    style="display:block;border:none;">\n' +
+      '  </iframe>\n' +
+      '</div>';
   } else {
     var img = document.createElement('img');
     img.src = f.url; img.alt = f.label; img.className = 'lb-media';
     lbMedia.appendChild(img);
+    lbEmbed.style.display = 'none';
   }
 
-  lbCaption.textContent = f.path; // δείχνει και τον φάκελο
+  lbCaption.textContent = f.path;
   lbOpen.href = f.url;
   lbCopy.textContent = '📋 Αντιγραφή link';
   lbCopy.classList.remove('copied');
@@ -515,6 +591,7 @@ function openLightbox(idx) {
 function closeLightbox() {
   lightbox.classList.remove('open');
   document.body.style.overflow = '';
+  embedPanel.classList.remove('open');
   var vid = lbMedia.querySelector('video');
   if (vid) vid.pause();
   lbMedia.innerHTML = '';
@@ -528,28 +605,47 @@ lbNext.addEventListener('click', function() { if (lbIndex < filtered.length - 1)
 document.addEventListener('keydown', function(e) {
   if (!lightbox.classList.contains('open')) return;
   if (e.key === 'Escape') closeLightbox();
-  if (e.key === 'ArrowLeft'  && lbIndex > 0)                openLightbox(lbIndex - 1);
+  if (e.key === 'ArrowLeft'  && lbIndex > 0)                 openLightbox(lbIndex - 1);
   if (e.key === 'ArrowRight' && lbIndex < filtered.length-1) openLightbox(lbIndex + 1);
 });
 
+/* ── Αντιγραφή link ── */
 lbCopy.addEventListener('click', function() {
-  var url = filtered[lbIndex].url;
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(url).then(flashCopy);
+  copyText(filtered[lbIndex].url, lbCopy, '📋 Αντιγραφή link');
+});
+
+/* ── Embed Blogger toggle + αντιγραφή ── */
+lbEmbed.addEventListener('click', function() {
+  if (!embedPanel.classList.contains('open')) {
+    embedPanel.classList.add('open');
+    embedCode.select();
+    copyText(embedCode.value, lbEmbed, '🟠 Embed Blogger');
   } else {
-    var ta = document.createElement('textarea');
-    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try { document.execCommand('copy'); flashCopy(); } catch(e) {}
-    document.body.removeChild(ta);
+    embedPanel.classList.remove('open');
+    lbEmbed.textContent = '🟠 Embed Blogger';
+    lbEmbed.classList.remove('copied');
   }
 });
-function flashCopy() {
-  lbCopy.textContent = '✅ Αντιγράφηκε!';
-  lbCopy.classList.add('copied');
-  setTimeout(function() { lbCopy.textContent = '📋 Αντιγραφή link'; lbCopy.classList.remove('copied'); }, 2000);
+
+function copyText(text, btn, resetLabel) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function() { flashBtn(btn, resetLabel); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); flashBtn(btn, resetLabel); } catch(e) {}
+    document.body.removeChild(ta);
+  }
 }
 
+function flashBtn(btn, resetLabel) {
+  btn.textContent = '✅ Αντιγράφηκε!';
+  btn.classList.add('copied');
+  setTimeout(function() { btn.textContent = resetLabel; btn.classList.remove('copied'); }, 2000);
+}
+
+/* ── Pagination ── */
 function renderPagination(page, totalPages) {
   pagination.innerHTML = '';
   if (totalPages <= 1) return;
