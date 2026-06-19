@@ -33,7 +33,7 @@ echo ---------------------------------------- >> "%LOG%"
 cls
 echo.
 echo  +======================================================+
-echo  ^|       WINDOWS ULTIMATE CLEANUP TOOL  v2.0           ^|
+echo  ^|       LFT WINDOWS ULTIMATE CLEANUP TOOL  v2.0           ^|
 echo  ^|              by Love for Technology                  ^|
 echo  +======================================================+
 echo.
