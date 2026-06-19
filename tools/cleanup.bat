@@ -115,7 +115,7 @@ goto MENU
 
 :DoTemp
 echo.
-echo  > [Temp] Cleaning user/system temp, Prefetch, Recycle Bin...
+echo  ^> [Temp] Cleaning user/system temp, Prefetch, Recycle Bin...
 del /f /s /q "%temp%\*" >nul 2>&1
 for /d %%X in ("%temp%\*") do rd /s /q "%%X" >nul 2>&1
 del /f /s /q "C:\Windows\Temp\*" >nul 2>&1
@@ -129,7 +129,7 @@ goto :eof
 
 :DoUpdate
 echo.
-echo  > [Update] Cleaning Windows Update cache...
+echo  ^> [Update] Cleaning Windows Update cache...
 net stop wuauserv >nul 2>&1
 net stop bits >nul 2>&1
 net stop cryptsvc >nul 2>&1
@@ -140,7 +140,7 @@ net start wuauserv >nul 2>&1
 net start bits >nul 2>&1
 echo     [OK] Windows Update cache
 echo.
-echo  > [DelivOpt] Cleaning Delivery Optimization cache...
+echo  ^> [DelivOpt] Cleaning Delivery Optimization cache...
 net stop dosvc >nul 2>&1
 del /f /s /q "C:\Windows\ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization\Cache\*" >nul 2>&1
 net start dosvc >nul 2>&1
@@ -150,7 +150,7 @@ goto :eof
 
 :DoThumbs
 echo.
-echo  > [Cache] Cleaning Thumbnail and Icon cache...
+echo  ^> [Cache] Cleaning Thumbnail and Icon cache...
 taskkill /f /im explorer.exe >nul 2>&1
 timeout /t 1 /nobreak >nul
 del /f /s /q /a "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
@@ -162,7 +162,7 @@ goto :eof
 
 :DoWER
 echo.
-echo  > [WER] Cleaning Windows Error Reports...
+echo  ^> [WER] Cleaning Windows Error Reports...
 if exist "C:\ProgramData\Microsoft\Windows\WER" (
     rd /s /q "C:\ProgramData\Microsoft\Windows\WER" >nul 2>&1
     md "C:\ProgramData\Microsoft\Windows\WER" >nul 2>&1
@@ -173,7 +173,7 @@ goto :eof
 
 :DoLogs
 echo.
-echo  > [Logs] Cleaning log files...
+echo  ^> [Logs] Cleaning log files...
 del /f /s /q "C:\Windows\Logs\*.log" >nul 2>&1
 del /f /s /q "C:\Windows\Panther\*.log" >nul 2>&1
 del /f /s /q "C:\Windows\inf\*.log" >nul 2>&1
@@ -185,7 +185,7 @@ goto :eof
 
 :DoDumps
 echo.
-echo  > [Dumps] Cleaning memory dump files...
+echo  ^> [Dumps] Cleaning memory dump files...
 del /f /s /q "C:\Windows\*.dmp" >nul 2>&1
 del /f /s /q "C:\Windows\Minidump\*.dmp" >nul 2>&1
 del /f /s /q "%LocalAppData%\CrashDumps\*" >nul 2>&1
@@ -195,7 +195,7 @@ goto :eof
 
 :DoInstallerLeftovers
 echo.
-echo  > [Installer] Cleaning installer leftovers...
+echo  ^> [Installer] Cleaning installer leftovers...
 del /f /s /q "C:\Windows\Installer\*.tmp" >nul 2>&1
 del /f /s /q "C:\Windows\Installer\*.log" >nul 2>&1
 echo     [OK] Installer leftovers
@@ -204,7 +204,7 @@ goto :eof
 
 :DoEventLogs
 echo.
-echo  > [EventLogs] Clearing all Event Viewer logs...
+echo  ^> [EventLogs] Clearing all Event Viewer logs...
 for /f "tokens=*" %%G in ('wevtutil el') do (
     wevtutil cl "%%G" >nul 2>&1
 )
@@ -214,7 +214,7 @@ goto :eof
 
 :DoBrowsers
 echo.
-echo  > [Browsers] Cleaning Chrome / Edge / Firefox / Brave cache...
+echo  ^> [Browsers] Cleaning Chrome / Edge / Firefox / Brave cache...
 taskkill /f /im chrome.exe >nul 2>&1
 taskkill /f /im msedge.exe >nul 2>&1
 taskkill /f /im firefox.exe >nul 2>&1
@@ -238,7 +238,7 @@ goto :eof
 
 :DoDNS
 echo.
-echo  > [DNS] Flushing DNS cache...
+echo  ^> [DNS] Flushing DNS cache...
 ipconfig /flushdns >nul 2>&1
 echo     [OK] DNS cache
 echo     [OK] DNS >> "%LOG%"
@@ -246,7 +246,7 @@ goto :eof
 
 :DoWinSxS
 echo.
-echo  > [WinSxS] Running WinSxS cleanup (this may take a while)...
+echo  ^> [WinSxS] Running WinSxS cleanup (this may take a while)...
 Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase >nul 2>&1
 echo     [OK] WinSxS
 echo     [OK] WinSxS >> "%LOG%"
@@ -254,7 +254,7 @@ goto :eof
 
 :DoDev
 echo.
-echo  > [Dev] Cleaning developer cache folders...
+echo  ^> [Dev] Cleaning developer cache folders...
 rd /s /q "%LocalAppData%\npm-cache" >nul 2>&1
 rd /s /q "%LocalAppData%\pip\cache" >nul 2>&1
 rd /s /q "%LocalAppData%\Unity\cache" >nul 2>&1
@@ -268,7 +268,7 @@ goto :eof
 
 :DoGPU
 echo.
-echo  > [GPU] Cleaning GPU shader cache (NVIDIA / AMD)...
+echo  ^> [GPU] Cleaning GPU shader cache (NVIDIA / AMD)...
 rd /s /q "%LocalAppData%\NVIDIA\GLCache" >nul 2>&1
 rd /s /q "%LocalAppData%\NVIDIA\DXCache" >nul 2>&1
 rd /s /q "%LocalAppData%\NVIDIA Corporation\NV_Cache" >nul 2>&1
@@ -281,7 +281,7 @@ goto :eof
 
 :DoDiskClean
 echo.
-echo  > [DiskClean] Running Windows Disk Cleanup...
+echo  ^> [DiskClean] Running Windows Disk Cleanup...
 cleanmgr /sageset:1 >nul 2>&1
 cleanmgr /sagerun:1 >nul 2>&1
 echo     [OK] Disk Cleanup
@@ -290,7 +290,7 @@ goto :eof
 
 :DoWindowsOld
 echo.
-echo  > [Windows.old] Checking for Windows.old...
+echo  ^> [Windows.old] Checking for Windows.old...
 if exist "C:\Windows.old" (
     rd /s /q "C:\Windows.old" >nul 2>&1
     echo     [OK] Windows.old - DELETED
@@ -317,7 +317,7 @@ goto :eof
 cls
 echo.
 echo  +======================================================+
-echo  ^|        RUNNING FULL SYSTEM CLEANUP                  ^|
+echo  ^|           RUNNING FULL SYSTEM CLEANUP               ^|
 echo  +======================================================+
 echo.
 call :DoTemp
