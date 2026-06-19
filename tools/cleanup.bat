@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
-title LFT Windows Ultimate Cleanup Tool v2.0
+title Windows Ultimate Cleanup Tool v2.0
 color 0A
 
 :: ============================================================
@@ -21,7 +21,7 @@ if %errorlevel% neq 0 (
 ::   LOG FILE
 :: ============================================================
 set "LOG=%TEMP%\cleanup_log.txt"
-echo LFT Windows Ultimate Cleanup Tool v2.0 > "%LOG%"
+echo Windows Ultimate Cleanup Tool v2.0 > "%LOG%"
 echo Started: %date% %time% >> "%LOG%"
 echo ---------------------------------------- >> "%LOG%"
 
@@ -32,7 +32,7 @@ echo ---------------------------------------- >> "%LOG%"
 cls
 echo.
 echo  +======================================================+
-echo  ^|     LFT WINDOWS ULTIMATE CLEANUP TOOL  v2.0         ^|
+echo  ^|       WINDOWS ULTIMATE CLEANUP TOOL  v2.0           ^|
 echo  ^|              by Love for Technology                  ^|
 echo  +======================================================+
 echo.
