@@ -1,1 +1,357 @@
+@echo off
+setlocal EnableDelayedExpansion
+title LFT Windows Ultimate Cleanup Tool v2.0
+color 0A
 
+:: ============================================================
+::   ADMIN CHECK
+:: ============================================================
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    cls
+    echo.
+    echo  [!] Run this script AS ADMINISTRATOR!
+    echo  [!] Right click -> "Run as administrator"
+    echo.
+    pause
+    exit /b 1
+)
+
+:: ============================================================
+::   LOG FILE
+:: ============================================================
+set "LOG=%TEMP%\cleanup_log.txt"
+echo LFT Windows Ultimate Cleanup Tool v2.0 > "%LOG%"
+echo Started: %date% %time% >> "%LOG%"
+echo ---------------------------------------- >> "%LOG%"
+
+:: ============================================================
+::   INTRO SCREEN
+:: ============================================================
+:INTRO
+cls
+echo.
+echo  +======================================================+
+echo  ^|     LFT WINDOWS ULTIMATE CLEANUP TOOL  v2.0         ^|
+echo  ^|              by Love for Technology                  ^|
+echo  +======================================================+
+echo.
+echo  This script cleans:
+echo  ------------------------------------------------------
+echo   [1]  User ^& System Temp
+echo   [2]  Prefetch
+echo   [3]  Recycle Bin
+echo   [4]  Windows Update cache
+echo   [5]  Delivery Optimization cache
+echo   [6]  Thumbnail ^& Icon cache
+echo   [7]  Windows Error Reports
+echo   [8]  Log files
+echo   [9]  Memory Dumps
+echo   [10] Browser Caches (Chrome, Edge, Firefox, Brave)
+echo   [11] DNS cache
+echo   [12] WinSxS cleanup
+echo   [13] Developer Temp (npm, pip, Unity, yarn, Gradle)
+echo   [14] GPU Shader cache (NVIDIA, AMD)
+echo   [15] Windows.old
+echo   [16] Event Viewer logs
+echo   [17] Installer leftovers
+echo  ------------------------------------------------------
+echo.
+echo  [ENTER]  Full cleanup (all of the above)
+echo  [M]      Selective menu
+echo  [Q]      Quit
+echo.
+set "choice="
+set /p choice="  Your choice: "
+
+if /I "%choice%"=="Q" goto EXIT
+if /I "%choice%"=="M" goto MENU
+goto FULL
+
+:: ============================================================
+::   SELECTIVE MENU
+:: ============================================================
+:MENU
+cls
+echo.
+echo  +======================================================+
+echo  ^|                 SELECTIVE MENU                       ^|
+echo  +======================================================+
+echo.
+echo   [1]  Temp, Prefetch, Recycle Bin
+echo   [2]  Windows Update ^& Delivery Optimization
+echo   [3]  Browsers (Chrome, Edge, Firefox, Brave)
+echo   [4]  Logs, Dumps, Event Viewer
+echo   [5]  GPU Shader cache
+echo   [6]  Developer cache (npm, pip, Unity, yarn)
+echo   [7]  DNS Cache
+echo   [8]  Windows Disk Cleanup (GUI)
+echo   [9]  Windows.old
+echo   [10] Thumbnail ^& Icon cache
+echo  ------------------------------------------------------
+echo   [F]  Full cleanup
+echo   [Q]  Quit
+echo.
+set "opt="
+set /p opt="  Choice: "
+
+if /I "%opt%"=="Q" goto EXIT
+if /I "%opt%"=="F" goto FULL
+if "%opt%"=="1"  ( call :DoTemp     & call :Summary & pause & goto MENU )
+if "%opt%"=="2"  ( call :DoUpdate   & call :Summary & pause & goto MENU )
+if "%opt%"=="3"  ( call :DoBrowsers & call :Summary & pause & goto MENU )
+if "%opt%"=="4"  ( call :DoLogs & call :DoEventLogs & call :DoDumps & call :DoInstallerLeftovers & call :Summary & pause & goto MENU )
+if "%opt%"=="5"  ( call :DoGPU      & call :Summary & pause & goto MENU )
+if "%opt%"=="6"  ( call :DoDev      & call :Summary & pause & goto MENU )
+if "%opt%"=="7"  ( call :DoDNS      & call :Summary & pause & goto MENU )
+if "%opt%"=="8"  ( call :DoDiskClean & pause & goto MENU )
+if "%opt%"=="9"  ( call :DoWindowsOld & call :Summary & pause & goto MENU )
+if "%opt%"=="10" ( call :DoThumbs   & call :Summary & pause & goto MENU )
+goto MENU
+
+:: ============================================================
+::   SUBROUTINES
+:: ============================================================
+
+:DoTemp
+echo.
+echo  > [Temp] Cleaning user/system temp, Prefetch, Recycle Bin...
+del /f /s /q "%temp%\*" >nul 2>&1
+for /d %%X in ("%temp%\*") do rd /s /q "%%X" >nul 2>&1
+del /f /s /q "C:\Windows\Temp\*" >nul 2>&1
+for /d %%X in ("C:\Windows\Temp\*") do rd /s /q "%%X" >nul 2>&1
+del /f /s /q "C:\Windows\Prefetch\*" >nul 2>&1
+rd /s /q "%systemdrive%\$Recycle.bin" >nul 2>&1
+md "%systemdrive%\$Recycle.bin" >nul 2>&1
+echo     [OK] Temp, Prefetch, Recycle Bin
+echo     [OK] Temp >> "%LOG%"
+goto :eof
+
+:DoUpdate
+echo.
+echo  > [Update] Cleaning Windows Update cache...
+net stop wuauserv >nul 2>&1
+net stop bits >nul 2>&1
+net stop cryptsvc >nul 2>&1
+rd /s /q "C:\Windows\SoftwareDistribution\Download" >nul 2>&1
+md "C:\Windows\SoftwareDistribution\Download" >nul 2>&1
+net start cryptsvc >nul 2>&1
+net start wuauserv >nul 2>&1
+net start bits >nul 2>&1
+echo     [OK] Windows Update cache
+echo.
+echo  > [DelivOpt] Cleaning Delivery Optimization cache...
+net stop dosvc >nul 2>&1
+del /f /s /q "C:\Windows\ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization\Cache\*" >nul 2>&1
+net start dosvc >nul 2>&1
+echo     [OK] Delivery Optimization
+echo     [OK] Windows Update >> "%LOG%"
+goto :eof
+
+:DoThumbs
+echo.
+echo  > [Cache] Cleaning Thumbnail and Icon cache...
+taskkill /f /im explorer.exe >nul 2>&1
+timeout /t 1 /nobreak >nul
+del /f /s /q /a "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
+del /f /s /q /a "%LocalAppData%\Microsoft\Windows\Explorer\iconcache_*.db" >nul 2>&1
+start explorer.exe
+echo     [OK] Thumbnail and Icon cache
+echo     [OK] Thumbnail cache >> "%LOG%"
+goto :eof
+
+:DoWER
+echo.
+echo  > [WER] Cleaning Windows Error Reports...
+if exist "C:\ProgramData\Microsoft\Windows\WER" (
+    rd /s /q "C:\ProgramData\Microsoft\Windows\WER" >nul 2>&1
+    md "C:\ProgramData\Microsoft\Windows\WER" >nul 2>&1
+)
+echo     [OK] Windows Error Reports
+echo     [OK] WER >> "%LOG%"
+goto :eof
+
+:DoLogs
+echo.
+echo  > [Logs] Cleaning log files...
+del /f /s /q "C:\Windows\Logs\*.log" >nul 2>&1
+del /f /s /q "C:\Windows\Panther\*.log" >nul 2>&1
+del /f /s /q "C:\Windows\inf\*.log" >nul 2>&1
+del /f /s /q "C:\Windows\debug\*.log" >nul 2>&1
+del /f /s /q "%ProgramData%\Microsoft\Windows\WER\ReportArchive\*" /a >nul 2>&1
+echo     [OK] Log files
+echo     [OK] Logs >> "%LOG%"
+goto :eof
+
+:DoDumps
+echo.
+echo  > [Dumps] Cleaning memory dump files...
+del /f /s /q "C:\Windows\*.dmp" >nul 2>&1
+del /f /s /q "C:\Windows\Minidump\*.dmp" >nul 2>&1
+del /f /s /q "%LocalAppData%\CrashDumps\*" >nul 2>&1
+echo     [OK] Memory Dumps
+echo     [OK] Dumps >> "%LOG%"
+goto :eof
+
+:DoInstallerLeftovers
+echo.
+echo  > [Installer] Cleaning installer leftovers...
+del /f /s /q "C:\Windows\Installer\*.tmp" >nul 2>&1
+del /f /s /q "C:\Windows\Installer\*.log" >nul 2>&1
+echo     [OK] Installer leftovers
+echo     [OK] Installer >> "%LOG%"
+goto :eof
+
+:DoEventLogs
+echo.
+echo  > [EventLogs] Clearing all Event Viewer logs...
+for /f "tokens=*" %%G in ('wevtutil el') do (
+    wevtutil cl "%%G" >nul 2>&1
+)
+echo     [OK] Event Viewer logs
+echo     [OK] Event Logs >> "%LOG%"
+goto :eof
+
+:DoBrowsers
+echo.
+echo  > [Browsers] Cleaning Chrome / Edge / Firefox / Brave cache...
+taskkill /f /im chrome.exe >nul 2>&1
+taskkill /f /im msedge.exe >nul 2>&1
+taskkill /f /im firefox.exe >nul 2>&1
+taskkill /f /im brave.exe >nul 2>&1
+timeout /t 2 /nobreak >nul
+rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Cache" >nul 2>&1
+rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Code Cache" >nul 2>&1
+rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\GPUCache" >nul 2>&1
+rd /s /q "%LocalAppData%\Microsoft\Edge\User Data\Default\Cache" >nul 2>&1
+rd /s /q "%LocalAppData%\Microsoft\Edge\User Data\Default\Code Cache" >nul 2>&1
+rd /s /q "%LocalAppData%\Microsoft\Edge\User Data\Default\GPUCache" >nul 2>&1
+for /d %%P in ("%LocalAppData%\Mozilla\Firefox\Profiles\*") do (
+    rd /s /q "%%P\cache2" >nul 2>&1
+    rd /s /q "%%P\startupCache" >nul 2>&1
+)
+rd /s /q "%LocalAppData%\BraveSoftware\Brave-Browser\User Data\Default\Cache" >nul 2>&1
+rd /s /q "%LocalAppData%\BraveSoftware\Brave-Browser\User Data\Default\Code Cache" >nul 2>&1
+echo     [OK] Browser caches
+echo     [OK] Browsers >> "%LOG%"
+goto :eof
+
+:DoDNS
+echo.
+echo  > [DNS] Flushing DNS cache...
+ipconfig /flushdns >nul 2>&1
+echo     [OK] DNS cache
+echo     [OK] DNS >> "%LOG%"
+goto :eof
+
+:DoWinSxS
+echo.
+echo  > [WinSxS] Running WinSxS cleanup (this may take a while)...
+Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase >nul 2>&1
+echo     [OK] WinSxS
+echo     [OK] WinSxS >> "%LOG%"
+goto :eof
+
+:DoDev
+echo.
+echo  > [Dev] Cleaning developer cache folders...
+rd /s /q "%LocalAppData%\npm-cache" >nul 2>&1
+rd /s /q "%LocalAppData%\pip\cache" >nul 2>&1
+rd /s /q "%LocalAppData%\Unity\cache" >nul 2>&1
+rd /s /q "%LocalAppData%\UnrealEngine" >nul 2>&1
+rd /s /q "%AppData%\Composer\cache" >nul 2>&1
+rd /s /q "%LocalAppData%\yarn\Cache" >nul 2>&1
+rd /s /q "%LocalAppData%\Gradle\caches" >nul 2>&1
+echo     [OK] Developer cache
+echo     [OK] Dev >> "%LOG%"
+goto :eof
+
+:DoGPU
+echo.
+echo  > [GPU] Cleaning GPU shader cache (NVIDIA / AMD)...
+rd /s /q "%LocalAppData%\NVIDIA\GLCache" >nul 2>&1
+rd /s /q "%LocalAppData%\NVIDIA\DXCache" >nul 2>&1
+rd /s /q "%LocalAppData%\NVIDIA Corporation\NV_Cache" >nul 2>&1
+rd /s /q "%AppData%\AMD\DxCache" >nul 2>&1
+rd /s /q "%LocalAppData%\AMD\DxCache" >nul 2>&1
+rd /s /q "%LocalAppData%\D3DSCache" >nul 2>&1
+echo     [OK] GPU Shader cache
+echo     [OK] GPU >> "%LOG%"
+goto :eof
+
+:DoDiskClean
+echo.
+echo  > [DiskClean] Running Windows Disk Cleanup...
+cleanmgr /sageset:1 >nul 2>&1
+cleanmgr /sagerun:1 >nul 2>&1
+echo     [OK] Disk Cleanup
+echo     [OK] DiskClean >> "%LOG%"
+goto :eof
+
+:DoWindowsOld
+echo.
+echo  > [Windows.old] Checking for Windows.old...
+if exist "C:\Windows.old" (
+    rd /s /q "C:\Windows.old" >nul 2>&1
+    echo     [OK] Windows.old - DELETED
+    echo     [OK] Windows.old deleted >> "%LOG%"
+) else (
+    echo     [-] Windows.old not found.
+)
+goto :eof
+
+:: ============================================================
+::   SUMMARY
+:: ============================================================
+:Summary
+echo.
+echo  ------------------------------------------------------
+echo  [i] Log saved to: %LOG%
+echo  ------------------------------------------------------
+goto :eof
+
+:: ============================================================
+::   FULL CLEANUP
+:: ============================================================
+:FULL
+cls
+echo.
+echo  +======================================================+
+echo  ^|        RUNNING FULL SYSTEM CLEANUP                  ^|
+echo  +======================================================+
+echo.
+call :DoTemp
+call :DoUpdate
+call :DoThumbs
+call :DoWER
+call :DoLogs
+call :DoDumps
+call :DoInstallerLeftovers
+call :DoEventLogs
+call :DoWindowsOld
+call :DoBrowsers
+call :DoDNS
+call :DoWinSxS
+call :DoDev
+call :DoGPU
+call :DoDiskClean
+echo.
+echo  +======================================================+
+echo  ^|           CLEANUP COMPLETE - RESTART PC!            ^|
+echo  +======================================================+
+echo.
+call :Summary
+pause
+goto MENU
+
+:: ============================================================
+::   EXIT
+:: ============================================================
+:EXIT
+cls
+echo.
+echo  Goodbye!
+echo  (c) 2026 Love for Technology - lovefortechnology.net
+echo.
+endlocal
+exit /b 0
